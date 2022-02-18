@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% load crispy_forms_tags %} {% block content %}
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<main>
+    <div class="container wow fadeIn">
+        <!-- Heading -->
+        <h2 class="my-5 h2 text-center">Payment </h2>
+        <!--Grid column-->
+        <div class="col-md-12 mb-4">
+            <!--Card-->
+            <div class="text-center">
+                <!--Card content-->
+                <script src="https://www.paypal.com/sdk/js?client-id=AR47_ZalzndP7zVZkYWCXJwP8GPLVWlhGDAsYEe_ucATCo5by9vdEZuzPXZmh5BARApnMRPS0oY01e-6&currency=USD"></script>
+                <div id="paypal-button-container"></div>
+                <script>
+                    paypal.Buttons({
+
+                        createOrder: function(data, actions) {
+
+                            return actions.order.create({
+
+                                purchase_units: [{
+
+                                    amount: {
+                                        value: '50'
+                                    }
+                                }]
+                            });
+                        },
+                        onApprove: function(data, actions) {
+                            return actions.order.capture().then(function(orderData) {
+                                console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                                var transaction = orderData.purchase_units[0].payments.captures[0];
+                                alert('Transaction ' + transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
+                            });
+                        }
+
+                    }).render('#paypal-button-container');
+                </script>
+
+                </body>
+
+                </html>
+            </div>>
+        </div>
+</main>
+{% endblock content %}
