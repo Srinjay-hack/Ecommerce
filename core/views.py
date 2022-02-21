@@ -9,8 +9,6 @@ from django.views.generic import ListView, DetailView,View
 from django.contrib import messages
 from .forms import CheckoutForm
 from django.conf import settings
-import stripe
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def item_list(request):
@@ -62,16 +60,21 @@ class CheckoutView(View):
 
 class PaymentView(View):
     def get(self,*args,**kwargs):
-        return render(self.request,"payment1.html")
+        try:
+            order=Order.objects.get(user=self.request.user , ordered=False)
+            context={
+                'object':order
+            }
+            return render(self.request,"payment.html",context)
+        except ObjectDoesNotExist :
+            messages.error(self.request,"You do not have an active order")
+
+            return redirect("/")
+        
+
     def post(self,*args,**kwargs):
         order=Order.objects.get(user=self.request.user,ordered=False)
-        token=self.request.POST.get('stripeToken')
-        stripe.Charge.create(
-            amount=order.get_total()*100,
-            currency="usd",
-            source="tok_amex",
-            description="My First Test Charge (created for API docs)",
-        )
+        amount=order.get_total()*100,
 
         
 

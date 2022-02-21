@@ -25,14 +25,7 @@
                                 <label for="address" class="">Address</label>
                             </div>
 
-                            <!--address-2-->
-                            <div class="md-form mb-5">
-                                <!-- <input type="text" id="address-2" class="form-control" placeholder="Apartment or suite">
-                 -->
-                                {{ form.appartment_address }}
 
-                                <label for="address-2" class="">Address 2 (optional)</label>
-                            </div>
 
                             <!--Grid row-->
                             <div class="row">
@@ -94,7 +87,7 @@
                 </div>
                 <hr />
 
-                <div class="d-block my-3">
+                <!-- <div class="d-block my-3">
                   {% for value, name in form.fields.payment_option.choices %}
                   <div class="custom-control custom-radio">
                     <input
@@ -110,12 +103,35 @@
                     >
                   </div>
                   {% endfor %}
-                </div>
+                </div> -->
 
-                <hr class="mb-4" />
-                <button class="btn btn-primary btn-lg btn-block" type="submit">
-                  Continue to checkout
-                </button>
+                <script src="https://www.paypal.com/sdk/js?client-id=AR47_ZalzndP7zVZkYWCXJwP8GPLVWlhGDAsYEe_ucATCo5by9vdEZuzPXZmh5BARApnMRPS0oY01e-6&currency=USD"></script>
+                <div id="paypal-button-container"></div>
+                <script>
+                    paypal.Buttons({
+
+                        createOrder: function(data, actions) {
+
+                            return actions.order.create({
+
+                                purchase_units: [{
+
+                                    amount: {
+                                        value: '{{ object.get_total }}'
+                                    }
+                                }]
+                            });
+                        },
+                        onApprove: function(data, actions) {
+                            return actions.order.capture().then(function(orderData) {
+                                console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                                var transaction = orderData.purchase_units[0].payments.captures[0];
+                                alert('Transaction ' + transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
+                            });
+                        }
+
+                    }).render('#paypal-button-container');
+                </script>
               </form>
 
 
@@ -177,8 +193,8 @@
                 <span class="text-success">-$5</span>
               </li>
               <li class="list-group-item d-flex justify-content-between">
-                <span>Total (USD)</span>
-                <strong>$20</strong>
+                <span>{{order_item.get_total_amount_price}}</span>
+                <strong>${{ object.get_total }}</strong>
               </li>
             </ul>
             <!-- Cart -->
